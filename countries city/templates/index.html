@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        * {
+            color: #fff;
+        }
+        body {
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #766767;
+            overflow: hidden;
+        }
+        .inputs {
+            display: grid;
+            grid-template-columns: repeat(2,1fr);
+            margin-bottom: 5%;
+        }
+        button {
+            border: none;
+            background-color: rgb(24, 50, 50);
+            font-size: 1.2rem;
+            padding: .5em;
+            border-top: solid 1px #000;
+            border-left: solid 1px #000;
+            border-bottom: solid 1px #ffffff;
+            border-right: solid 1px #ffffff;
+            cursor: pointer;
+        }
+        button:hover {
+            border-top: solid 1px #ffffff;
+            border-left: solid 1px #ffffff;
+            border-bottom: solid 1px #000000;
+            border-right: solid 1px #000000;
+        }
+        select {
+            background-color: transparent;
+            font-size: 1.2rem;
+            outline: none;
+            border: solid 2px #fff;
+            padding: .4em;
+        }
+        option {
+            background-color: transparent;
+            color: #000;
+            font-size: 1.2rem;
+        }
+        .cities {
+            width: 40%;
+            height: 40%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            background-color: rgba(0, 0, 255, .5);
+            overflow: hidden;
+            display: none;
+            padding: 1em;
+        }
+        ::-webkit-scrollbar {
+            background-color: transparent;
+        }
+        ol {
+            list-style-type: lower-greek;
+        }
+        .please-wait {
+            width: 40%;
+            height: 40%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%,-50%);
+            background-color: rgba(0, 0, 255, .5);
+            overflow: hidden;
+            /*display: none;*/
+            padding: 1em;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        @keyframes rotate {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+        #circle {
+            width: 100px;
+            height: 100px;
+            border: solid 10px #766767;
+            animation: rotate 1s linear infinite;
+
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="/static/images.ico" type="image/x-icon">
+    <title>Show country info</title>
+</head>
+<body>
+    <div class="form-container">
+        <div class="inputs">
+            <label style="font-size: 1.2rem;">Choose country</label>
+            <input type="text" id="country" list="country-list" style="background-color: transparent;outline:none;padding:.4em;">
+            <datalist id="country-list">
+                {% for i in range(countries|length) %}
+                    <option value="{{countries[i]['country']}}">{{countries[i]['country']}}</option>
+                {% endfor %}
+            </datalist>
+        </div>
+        <div class="inputs">
+            <button onclick="cities()">Show cities</button>
+        </div>
+    </div>
+    <div class="cities">
+        <button onclick="document.querySelector('.cities').style.display='none'" >X</button>
+        <div class="list" style="overflow: scroll;height:100%;"> 
+            <ol id="city-list" style="text-align: center;">
+                <li>jifjiefwi</li>
+            </ol>
+        </div>
+    </div>
+        <div class="please-wait">
+            <div id="circle">
+
+            </div>
+            <h3>Fetching cities...</h3>
+        </div>
+    <script>
+        function cities () {
+            var country = document.querySelector("#country").value;
+            document.querySelector('.please-wait').style.display = 'flex'
+            fetch(`/cities/${country}`)
+            .then(res => res.json())
+            .then (data => {
+                if (data.city) {
+                    document.querySelector("#city-list").innerHTML = ""
+                    document.querySelector('.please-wait').style.display = 'none'
+                    document.querySelector('.cities').style.display = 'block';
+                    for (let i of data.city) {
+                    document.querySelector("#city-list").innerHTML += `<li>${i}</li>`
+                    }
+                }
+                else {
+                    document.querySelector("#city-list").innerHTML = ""
+                    document.querySelector('.please-wait').style.display = 'none'
+                    document.querySelector('.cities').style.display = 'block';
+                    document.querySelector("#city-list").innerHTML = `<li>${data.error}</li>`
+                }
+            })
+        }
+    </script>
+</body>
+</html>
